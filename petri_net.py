@@ -6,12 +6,13 @@ class PetriNet(object):
             transitions = []
         self.transitions = transitions
         self.places = self.get_places()
-
+        self.states = {}
     def enabled_transitions(self):
         return [c for c in self.transitions if c.can_fire()]
 
     def state(self):
-        return State([t.tokens for t in self.places])
+        state = State([t.tokens for t in self.places])
+        return self.states.setdefault(state, state)
 
     def get_places(self):
         t = {}

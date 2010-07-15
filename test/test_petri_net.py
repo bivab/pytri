@@ -22,6 +22,12 @@ def test_petri_net_state():
     p = PetriNet([t1,t2])
     assert p.state() == State([10, 0, 12312312])
 
+def test_petri_net_caches_state():
+    t1 = Transition([Place(10)], [])
+    t2 = Transition([Place(0)], [Place(12312312)])
+    p = PetriNet([t1,t2])
+    assert p.state() is p.state()
+
 def test_petri_net_computes_places():
     p1, p2, p3, p4 = [Place(10), Place(10), Place(0), Place(12312312)]
     t1 = Transition([p1], [p2])
