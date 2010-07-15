@@ -1,3 +1,5 @@
+from state import State
+
 class Transition(object):
     def __init__(self, input=None, output=None):
         assert input is not None
@@ -5,15 +7,17 @@ class Transition(object):
         self.input = input
         self.output = output
 
-    def fire(self):
+    def fire(self, state):
+        result = state.tokens[:]
         for place in self.input:
-            place.tokens -= 1
+            result[place] -= 1
         for place in self.output:
-            place.tokens += 1
+            result[place] += 1
+        return State(result) #???
 
-    def can_fire(self):
+    def can_fire(self, state):
         for p in self.input:
-            if p.tokens < 1:
+            if state.tokens[p] < 1:
                 return False
         return True
 
