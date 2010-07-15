@@ -3,6 +3,7 @@ class State(object):
         if tokens is None:
             tokens = []
         self.tokens = tokens
+        self.successors = None
 
     def __eq__(self, other):
         return self.tokens == other.tokens

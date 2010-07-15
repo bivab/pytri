@@ -15,8 +15,3 @@ def test_petri_net_enabled_transitions():
     p = PetriNet([t1,t2])
     assert p.enabled_transitions(State([1, 0, 0])) == [t1]
 
-def test_petri_net_caches_state():
-    t1 = Transition([0], [])
-    t2 = Transition([1], [2])
-    p = PetriNet([t1,t2])
-    assert p.state([0, 1, 2]) is p.state([0, 1, 2])
