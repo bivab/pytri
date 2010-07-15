@@ -1,6 +1,5 @@
 from transition import Transition
 from state import State
-from place import Place
 
 def test_transition():
     t = Transition(input=[1], output=[])
