@@ -29,3 +29,14 @@ def test_animator2():
     a.step()
     assert a.stack == [State([2,0,0]), State([0,1,0]), State([0,0,1])]
 
+def test_animator_run():
+    state = State([2,0,0,1,0])
+    t1 = Transition([0], [1])
+    t2 = Transition([1,3], [2])
+    t3 = Transition([2], [3, 4])
+    t4 = Transition([4], [0])
+    net = PetriNet([t1,t2,t3,t4])
+    a = Animator(net, state)
+    a.run()
+    assert len(a.states) == 9
+

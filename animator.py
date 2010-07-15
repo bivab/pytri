@@ -15,3 +15,7 @@ class Animator(object):
 
     def _get_state_from_cache(self, state):
         return self.states.setdefault(state, state)
+
+    def run(self):
+        while self.stack:
+            self.step()
