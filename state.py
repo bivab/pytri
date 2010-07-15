@@ -12,3 +12,6 @@ class State(object):
 
     def __hash__(self):
         return hash(tuple(self.tokens))
+
+    def __repr__(self):
+        return 'State(%r)' % self.tokens
