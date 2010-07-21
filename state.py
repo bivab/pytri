@@ -5,6 +5,12 @@ class State(object):
         self.tokens = tokens
         self.successors = None
 
+    def get(self, i):
+        return self.tokens[i]
+
+    def eval_prop(self, prop):
+        return prop.evaluate(self)
+
     def __eq__(self, other):
         return self.tokens == other.tokens
 
