@@ -1,7 +1,7 @@
 from animator import Animator
 from propositions import FalseProposition, AndProposition, EqualsProposition
 from propositions import LessProposition, NegationProposition, TrueProposition
-from propositions import OrProposition, EUProposition, EGProposition
+from propositions import OrProposition, EUProposition, EGProposition, EXProposition
 from state import State
 from petri_net import PetriNet
 from transition import Transition
@@ -114,4 +114,21 @@ def test_dual_loop():
     prop = EGProposition(TrueProposition())
     assert state.evaluate(prop) == True
 
+def test_ex_proposition():
+    t1 = Transition([0], [1])
+    t2 = Transition([1], [2])
+    p = PetriNet([t1, t2])
+    state = State([1,1,0], p)
+    prop = EXProposition(EqualsProposition(VariableExpression(0), NumericExpression(0)))
+    assert state.evaluate(prop) == True
+
+def test_ex_proposition2():
+    t1 = Transition([0], [1,3])
+    t2 = Transition([0], [2])
+    t3 = Transition([1,3], [2])
+
+    p = PetriNet([t1, t2, t3])
+    state = State([2,1,0,0], p)
+    prop = EXProposition(EqualsProposition(VariableExpression(1), NumericExpression(0)))
+    assert state.evaluate(prop) == False
 

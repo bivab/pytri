@@ -130,3 +130,19 @@ class EGProposition(Proposition):
             if s.evaluate(self, True):
                 return True
         return False
+
+class EXProposition(Proposition):
+    def __init__(self, proposition):
+        self.proposition = proposition
+
+    def label(self):
+        return 'EX(%s)' % (self.proposition.label())
+
+    __str__ = label
+    __repr__ = label
+
+    def evaluate(self, state):
+        for s in state.successors():
+            if s.evaluate(self.proposition):
+                return True
+        return False
