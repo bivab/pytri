@@ -1,7 +1,7 @@
 from animator import Animator
 from propositions import FalseProposition, AndProposition, EqualsProposition
 from propositions import LessProposition, NegationProposition, TrueProposition
-from propositions import OrProposition
+from propositions import OrProposition, EUProposition
 from expression import VariableExpression, NumericExpression
 
 def test_labels():
@@ -12,3 +12,6 @@ def test_labels():
     assert AndProposition(EqualsProposition(VariableExpression(0), NumericExpression(1)),
                                     EqualsProposition(VariableExpression(1),
                                     NumericExpression(0))).label() == 'and(($0 = 1), ($1 = 0))'
+
+def test_eu_label():
+    assert EUProposition(TrueProposition(), FalseProposition()).label() == 'E(true U false)'

@@ -1,7 +1,7 @@
 from animator import Animator
 from propositions import FalseProposition, AndProposition, EqualsProposition
 from propositions import LessProposition, NegationProposition, TrueProposition
-from propositions import OrProposition
+from propositions import OrProposition, EUProposition, EGProposition
 from state import State
 from petri_net import PetriNet
 from transition import Transition
@@ -48,13 +48,56 @@ def test_or_proposition():
 def test_petri_net_with_propositions():
     t = Transition([0], [1])
     p = PetriNet([t])
-    s1 = State([1,0])
+    s1 = State([1,0], p)
     assert s1.evaluate(AndProposition(EqualsProposition(VariableExpression(0), NumericExpression(1)),
                                     EqualsProposition(VariableExpression(1), NumericExpression(0))))
     a = Animator(p, s1)
     a.step()
-    s2 = s1.successors[0]
+    s2 = s1.successors()[0]
     assert s2.evaluate(AndProposition(EqualsProposition(VariableExpression(0), NumericExpression(0)),
                                     EqualsProposition(VariableExpression(1),
                                     NumericExpression(1))))
+
+
+def test_eu_proposition():
+    t = Transition([0], [1])
+    p = PetriNet([t])
+    s1 = State([5,0], p)
+    prop = EUProposition(LessProposition(NumericExpression(0),
+    VariableExpression(0)), EqualsProposition(VariableExpression(1), NumericExpression(3)))
+    assert s1.evaluate(prop) == True
+
+def test_eu_proposition_1():
+    t = Transition([0], [1])
+    p = PetriNet([t])
+    s1 = State([0,2], p)
+    prop = EUProposition(LessProposition(NumericExpression(0),
+    VariableExpression(0)), EqualsProposition(VariableExpression(1), NumericExpression(3)))
+    assert s1.evaluate(prop) == False
+
+def test_eu_proposition_2():
+    t = Transition([0], [1])
+    p = PetriNet([t])
+    s1 = State([0,2], p)
+    prop = EUProposition(LessProposition(NumericExpression(0),
+    VariableExpression(0)), TrueProposition())
+    assert s1.evaluate(prop) == True
+
+def test_eu_loop():
+    t = Transition([0], [0])
+    p = PetriNet([t])
+    state = State([1], p)
+    prop = EUProposition(TrueProposition(), FalseProposition())
+    state.evaluate(prop) # should terminate
+    assert len(p._states_cache) == 1
+
+def test_eg_loop():
+    t = Transition([0], [0])
+    p = PetriNet([t])
+    state = State([1], p)
+    prop = EGProposition(TrueProposition())
+    assert state.evaluate(prop) == True
+    assert len(p._states_cache) == 1
+
+
 

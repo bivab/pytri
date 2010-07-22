@@ -91,3 +91,46 @@ class EqualsProposition(Proposition):
 
 def OrProposition(left, right):
     return NegationProposition(AndProposition(NegationProposition(left), NegationProposition(right)))
+
+class EUProposition(Proposition):
+    def __init__(self, first, second):
+        self.first = first
+        self.second = second
+
+    def label(self):
+        return 'E(%s U %s)' % (self.first.label(), self.second.label())
+
+    __str__ = label
+    __repr__ = label
+
+    def evaluate(self, state):
+        if state.evaluate(self.second):
+            return True
+        if not state.evaluate(self.first):
+            return False
+        for s in state.successors():
+            if s.equals(state):
+                continue
+            if s.evaluate(self):
+                return True
+        return False
+
+class EGProposition(Proposition):
+    def __init__(self, proposition):
+        self.proposition = proposition
+
+    def label(self):
+        return 'EG(%s)' % (self.proposition.label())
+
+    __str__ = label
+    __repr__ = label
+
+    def evaluate(self, state):
+        if not state.evaluate(self.proposition):
+            return False
+        for s in state.successors():
+            if s.equals(state):
+                return True
+            if s.evaluate(self):
+                return True
+        return False

@@ -1,10 +1,15 @@
 class State(object):
-    def __init__(self, tokens=None):
+    def __init__(self, tokens=None, net=None):
         if tokens is None:
             tokens = []
         self.tokens = tokens
-        self.successors = None
+        self.net = net
+        self._successors = None
         self.labels = {}
+
+    def successors(self):
+        return [self.net._get_state_from_cache(t.fire(self)) for t in self.net.enabled_transitions(self)]
+
     def get(self, i):
         return self.tokens[i]
 
@@ -16,6 +21,8 @@ class State(object):
 
     def __eq__(self, other):
         return self.tokens == other.tokens
+
+    equals = __eq__
 
     def __ne__(self, other):
         return not self == other

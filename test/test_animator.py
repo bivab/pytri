@@ -16,16 +16,16 @@ def test_animator():
     assert tr2 == [t1, t2, t3]
 
 def test_animator2():
-    state = State([0,0,0])
     t1 = Transition([], [0])
     t2 = Transition([0], [1])
     t3 = Transition([0], [2])
     net = PetriNet([t1,t2,t3])
+    state = State([0,0,0], net)
     a = Animator(net, state)
     assert a.stack == [state]
     a.step()
     assert a.stack == [State([1,0,0])]
-    assert state.successors == a.stack
+    assert state._successors == a.stack
     a.step()
     assert a.stack == [State([2,0,0]), State([0,1,0]), State([0,0,1])]
 

@@ -13,7 +13,7 @@ class Transition(object):
             result[place] -= 1
         for place in self.output:
             result[place] += 1
-        return State(result) #???
+        return State(result, state.net) #???
 
     def can_fire(self, state):
         for p in self.input:
