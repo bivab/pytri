@@ -38,5 +38,5 @@ def test_animator_run():
     net = PetriNet([t1,t2,t3,t4])
     a = Animator(net, state)
     a.run()
-    assert len(a.states) == 9
+    assert len(net._states_cache) == 9
 
