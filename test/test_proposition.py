@@ -8,6 +8,7 @@ from transition import Transition
 from expression import VariableExpression, NumericExpression
 
 state = State([2,0,0,1,0])
+
 def test_less_than():
     assert state.evaluate(LessProposition(VariableExpression(3), VariableExpression(0))) == True
     assert state.evaluate(LessProposition(VariableExpression(0), VariableExpression(3))) == False
@@ -86,17 +87,17 @@ def test_eu_proposition_2():
 def test_eu_loop():
     t = Transition([0], [0])
     p = PetriNet([t])
-    state = State([1], p)
+    s1 = State([1], p)
     prop = EUProposition(TrueProposition(), FalseProposition())
-    state.evaluate(prop) # should terminate
+    s1.evaluate(prop) # should terminate
     assert len(p._states_cache) == 1
 
 def test_eg_loop():
     t = Transition([0], [0])
     p = PetriNet([t])
-    state = State([1], p)
+    s1 = State([1], p)
     prop = EGProposition(TrueProposition())
-    assert state.evaluate(prop) == True
+    assert s1.evaluate(prop) == True
     assert len(p._states_cache) == 1
 
 def test_eg_five():
@@ -110,17 +111,17 @@ def test_dual_loop():
     t1 = Transition([0], [1])
     t2 = Transition([1], [0])
     p = PetriNet([t1, t2])
-    state = State([0, 1], p)
+    s1 = State([0, 1], p)
     prop = EGProposition(TrueProposition())
-    assert state.evaluate(prop) == True
+    assert s1.evaluate(prop) == True
 
 def test_ex_proposition():
     t1 = Transition([0], [1])
     t2 = Transition([1], [2])
     p = PetriNet([t1, t2])
-    state = State([1,1,0], p)
+    s1 = State([1,1,0], p)
     prop = EXProposition(EqualsProposition(VariableExpression(0), NumericExpression(0)))
-    assert state.evaluate(prop) == True
+    assert s1.evaluate(prop) == True
 
 def test_ex_proposition2():
     t1 = Transition([0], [1,3])
@@ -128,7 +129,7 @@ def test_ex_proposition2():
     t3 = Transition([1,3], [2])
 
     p = PetriNet([t1, t2, t3])
-    state = State([2,1,0,0], p)
+    s1 = State([2,1,0,0], p)
     prop = EXProposition(EqualsProposition(VariableExpression(1), NumericExpression(0)))
-    assert state.evaluate(prop) == False
+    assert s1.evaluate(prop) == False
 
