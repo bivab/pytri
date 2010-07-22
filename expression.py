@@ -1,4 +1,5 @@
-class Expression(object):
+from propositions import Proposition
+class Expression(Proposition):
     def __init__(self, value):
         self.value = value
 
