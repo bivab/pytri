@@ -15,3 +15,9 @@ def test_petri_net_enabled_transitions():
     p = PetriNet([t1,t2])
     assert p.enabled_transitions(State([1, 0, 0])) == [t1]
 
+def test_net():
+    t1 = Transition([0], [1])
+    t2 = Transition([1], [0])
+    p = PetriNet([t1, t2])
+    state = State([0, 1], p)
+    p.enabled_transitions(state) == [t2]

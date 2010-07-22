@@ -99,5 +99,19 @@ def test_eg_loop():
     assert state.evaluate(prop) == True
     assert len(p._states_cache) == 1
 
+def test_eg_five():
+    t = Transition([0], [1])
+    p = PetriNet([t])
+    s1 = State([5,0], p)
+    prop = EGProposition(LessProposition(NumericExpression(0), VariableExpression(0)))
+    assert s1.evaluate(prop) == False
+
+def test_dual_loop():
+    t1 = Transition([0], [1])
+    t2 = Transition([1], [0])
+    p = PetriNet([t1, t2])
+    state = State([0, 1], p)
+    prop = EGProposition(TrueProposition())
+    assert state.evaluate(prop) == True
 
 

@@ -109,9 +109,7 @@ class EUProposition(Proposition):
         if not state.evaluate(self.first):
             return False
         for s in state.successors():
-            if s.equals(state):
-                continue
-            if s.evaluate(self):
+            if s.evaluate(self, False):
                 return True
         return False
 
@@ -129,8 +127,6 @@ class EGProposition(Proposition):
         if not state.evaluate(self.proposition):
             return False
         for s in state.successors():
-            if s.equals(state):
-                return True
-            if s.evaluate(self):
+            if s.evaluate(self, True):
                 return True
         return False

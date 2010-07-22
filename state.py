@@ -13,9 +13,10 @@ class State(object):
     def get(self, i):
         return self.tokens[i]
 
-    def evaluate(self, prop):
+    def evaluate(self, prop, default = False):
         if prop in self.labels:
             return self.labels[prop]
+        self.labels[prop] = default
         self.labels[prop] = prop.evaluate(self)
         return self.labels[prop]
 
