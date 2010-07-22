@@ -4,12 +4,15 @@ class State(object):
             tokens = []
         self.tokens = tokens
         self.successors = None
-
+        self.labels = {}
     def get(self, i):
         return self.tokens[i]
 
-    def eval_prop(self, prop):
-        return prop.evaluate(self)
+    def evaluate(self, prop):
+        if prop in self.labels:
+            return self.labels[prop]
+        self.labels[prop] = prop.evaluate(self)
+        return self.labels[prop]
 
     def __eq__(self, other):
         return self.tokens == other.tokens

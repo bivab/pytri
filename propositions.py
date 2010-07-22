@@ -12,7 +12,7 @@ class LessProposition(Proposition):
         self.right = right
 
     def evaluate(self, state):
-        return self.left < self.right
+        return state.evaluate(self.left) < state.evaluate(self.right)
 
 class TrueProposition(Proposition):
     def evaluate(self, state):
@@ -27,7 +27,7 @@ class NegationProposition(Proposition):
         self.proposition = proposition
 
     def evaluate(self, state):
-        return not self.proposition.evaluate(state)
+        return not state.evaluate(self.proposition)
 
     def __repr__(self):
         return "Negation: %r" % self.proposition
@@ -38,7 +38,7 @@ class AndProposition(Proposition):
         self.right = right
 
     def evaluate(self, state):
-        return self.left.evaluate(state) and self.right.evaluate(state)
+        return state.evaluate(self.left) and state.evaluate(self.right)
 
 class EqualsProposition(Proposition):
     def __init__(self, left, right):
@@ -46,7 +46,7 @@ class EqualsProposition(Proposition):
         self.right = right
 
     def evaluate(self, state):
-        return self.left == self.right
+        return state.evaluate(self.left) == state.evaluate(self.right)
         # cause == is too easy
         # return AndProposition(NegationProposition(
         #    LessProposition(self.left, self.right)),
