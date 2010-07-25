@@ -9,7 +9,7 @@ from state import State
 def entry_point(argv):
     t = Transition([0], [1])
     p = PetriNet([t])
-    i = 105000
+    i = 1000000
     state = State([i,0], p)
     prop = EUProposition(LessProposition(NumericExpression(0),
     VariableExpression(0)), EqualsProposition(VariableExpression(1),
