@@ -1,3 +1,5 @@
+from continuation import EndContinuation, PropContinuation, KeepLookingContinuation
+
 class Proposition(object):
     def __init__(self):
         pass
@@ -14,8 +16,10 @@ class LessProposition(Proposition):
         self.left = left
         self.right = right
 
-    def evaluate(self, state):
-        return state.evaluate(self.left) < state.evaluate(self.right)
+    def evaluate(self, state, s, f):
+        if self.left.evaluate(state) < self.right.evaluate(state):
+            return s, f, state
+        return f, s, state
 
     def label(self):
         return "(%s < %s)" % (self.left.label(), self.right.label())
@@ -23,9 +27,25 @@ class LessProposition(Proposition):
     __str__ = label
     __repr__ = label
 
+class EqualsProposition(Proposition):
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
+
+    def evaluate(self, state, s, f):
+        if self.left.evaluate(state) == self.right.evaluate(state):
+            return s, f, state
+        return f, s, state
+
+    def label(self):
+        return "(%s = %s)" % (self.left.label(), self.right.label())
+
+    __str__ = label
+    __repr__ = label
+
 class TrueProposition(Proposition):
-    def evaluate(self, state):
-        return True
+    def evaluate(self, state, s, f):
+        return s, f, state
 
     def label(self):
         return "true"
@@ -34,8 +54,8 @@ class TrueProposition(Proposition):
     __repr__ = label
 
 class FalseProposition(Proposition):
-    def evaluate(self, state):
-        return False
+    def evaluate(self, state, s, f):
+       return f, s, state
 
     def label(self):
         return "false"
@@ -47,8 +67,8 @@ class NegationProposition(Proposition):
     def __init__(self, proposition):
         self.proposition = proposition
 
-    def evaluate(self, state):
-        return not state.evaluate(self.proposition)
+    def evaluate(self, state, s, f):
+        return PropContinuation(self.proposition, f, s), s, state
 
     def label(self):
         return "not(%s)" % self.proposition.label()
@@ -61,8 +81,8 @@ class AndProposition(Proposition):
         self.left = left
         self.right = right
 
-    def evaluate(self, state):
-        return state.evaluate(self.left) and state.evaluate(self.right)
+    def evaluate(self, state, s, f):
+        return PropContinuation(self.left, PropContinuation(self.right, s, f), f), EndContinuation(False), state
 
     def label(self):
         return "and(%s, %s)" % (self.left.label(), self.right.label())
@@ -70,24 +90,6 @@ class AndProposition(Proposition):
     __str__ = label
     __repr__ = label
 
-class EqualsProposition(Proposition):
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def evaluate(self, state):
-        return state.evaluate(self.left) == state.evaluate(self.right)
-        # cause == is too easy
-        # return AndProposition(NegationProposition(
-        #    LessProposition(self.left, self.right)),
-        #    NegationProposition(
-        #        LessProposition(self.right, self.left))).evaluate(state)
-
-    def label(self):
-        return "(%s = %s)" % (self.left.label(), self.right.label())
-
-    __str__ = label
-    __repr__ = label
 
 def OrProposition(left, right):
     return NegationProposition(AndProposition(NegationProposition(left), NegationProposition(right)))
@@ -103,15 +105,10 @@ class EUProposition(Proposition):
     __str__ = label
     __repr__ = label
 
-    def evaluate(self, state):
-        if state.evaluate(self.second):
-            return True
-        if not state.evaluate(self.first):
-            return False
-        for s in state.successors():
-            if s.evaluate(self, False):
-                return True
-        return False
+    def evaluate(self, state, s, f):
+        k = KeepLookingContinuation(self, s, f, state.successors())
+        nf = PropContinuation(self.first, k, f)
+        return PropContinuation(self.second, s, nf), f, state
 
 class EGProposition(Proposition):
     def __init__(self, proposition):
@@ -123,13 +120,10 @@ class EGProposition(Proposition):
     __str__ = label
     __repr__ = label
 
-    def evaluate(self, state):
-        if not state.evaluate(self.proposition):
-            return False
-        for s in state.successors():
-            if s.evaluate(self, True):
-                return True
-        return False
+    def evaluate(self, state, s, f):
+        # XXX build successors lazily in another cont
+        return PropContinuation(self.proposition,
+                KeepLookingContinuation(self, s, f, state.successors(), True), f, True), f, state
 
 class EXProposition(Proposition):
     def __init__(self, proposition):
@@ -141,8 +135,8 @@ class EXProposition(Proposition):
     __str__ = label
     __repr__ = label
 
-    def evaluate(self, state):
-        for s in state.successors():
-            if s.evaluate(self.proposition):
-                return True
-        return False
+    def evaluate(self, state, s, f):
+        states = state.successors()
+        next_state = states.pop()
+        next_cont = KeepLookingContinuation(self.proposition, s, f, states)
+        return PropContinuation(self.proposition, s, next_cont), f, next_state

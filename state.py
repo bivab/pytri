@@ -1,3 +1,4 @@
+from continuation import PropContinuation, EndContinuation
 class State(object):
     def __init__(self, tokens=None, net=None):
         if tokens is None:
@@ -14,6 +15,12 @@ class State(object):
         return self.tokens[i]
 
     def evaluate(self, prop, default = False):
+        cont = PropContinuation(prop, EndContinuation(True), EndContinuation(False))
+        state = self
+        while not cont.is_done():
+            cont, f, state = cont.activate(state)
+        assert isinstance(cont, EndContinuation)
+        return cont.result
         if prop in self.labels:
             return self.labels[prop]
         self.labels[prop] = default
