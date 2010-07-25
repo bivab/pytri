@@ -1,5 +1,5 @@
-from propositions import Proposition
-class Expression(Proposition):
+import propositions
+class Expression(propositions.Proposition):
     def __init__(self, value):
         self.value = value
 
