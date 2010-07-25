@@ -23,10 +23,6 @@ class PropContinuation(Continuation):
             else:
                 return self.fail, self.succ, state
         state.labels[label] = self.mark
-        assert isinstance(self.succ, Continuation)
-        assert isinstance(self.fail, Continuation)
-        import propositions
-        assert isinstance(self.prop, propositions.Proposition)
         m1 = MarkContinuation(self.prop, state, self.succ, self.succ, True)
         m2 = MarkContinuation(self.prop, state, self.fail, self.fail, False)
         return self.prop.evaluate(state, m1, m2)
@@ -40,14 +36,9 @@ class KeepLookingContinuation(PropContinuation):
 
     def activate(self, state):
         self.i -= 1
-        assert isinstance(self.i, int)
         if self.i > 0:
-            assert isinstance(self.states[self.i], type(state))
             return PropContinuation(self.prop, self.succ, self, self.mark), self.fail, self.states[self.i]
         if self.i == 0:
-            assert isinstance(self.states[self.i], type(state))
-            import propositions
-            assert isinstance(self.prop, propositions.Proposition)
             return PropContinuation(self.prop, self.succ, self.fail, self.mark), self.fail, self.states[0]
         # XXX why?
         return self.succ, self.fail, state

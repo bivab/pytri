@@ -18,7 +18,6 @@ class State(object):
         cont = PropContinuation(prop, EndContinuation(True), EndContinuation(False))
         state = self
         while not cont.is_done():
-            assert isinstance(cont, PropContinuation)
             cont, f, state = cont.activate(state)
         assert isinstance(cont, EndContinuation)
         return cont.result
