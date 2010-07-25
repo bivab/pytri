@@ -21,11 +21,6 @@ class State(object):
             cont, f, state = cont.activate(state)
         assert isinstance(cont, EndContinuation)
         return cont.result
-        if prop in self.labels:
-            return self.labels[prop]
-        self.labels[prop] = default
-        self.labels[prop] = prop.evaluate(self)
-        return self.labels[prop]
 
     def __eq__(self, other):
         return self.tokens == other.tokens
