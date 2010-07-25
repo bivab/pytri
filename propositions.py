@@ -17,7 +17,7 @@ class LessProposition(Proposition):
         self.right = right
 
     def evaluate(self, state, s, f):
-        if self.left.evaluate(state) < self.right.evaluate(state):
+        if self.left.eval(state) < self.right.eval(state):
             return s, f, state
         return f, s, state
 
@@ -33,7 +33,7 @@ class EqualsProposition(Proposition):
         self.right = right
 
     def evaluate(self, state, s, f):
-        if self.left.evaluate(state) == self.right.evaluate(state):
+        if self.left.eval(state) == self.right.eval(state):
             return s, f, state
         return f, s, state
 

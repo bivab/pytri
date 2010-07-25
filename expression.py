@@ -1,5 +1,4 @@
-import propositions
-class Expression(propositions.Proposition):
+class Expression(object):
     def __init__(self, value):
         self.value = value
 
@@ -7,7 +6,7 @@ class NumericExpression(Expression):
     def __init__(self,value):
         Expression.__init__(self, value)
 
-    def evaluate(self, state):
+    def eval(self, state):
         return self.value
 
     def label(self):
@@ -21,7 +20,7 @@ class VariableExpression(Expression):
         assert value >= 0
         Expression.__init__(self, value)
 
-    def evaluate(self, state):
+    def eval(self, state):
         return state.get(self.value)
 
     def label(self):

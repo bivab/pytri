@@ -1,4 +1,4 @@
-from continuation import PropContinuation, EndContinuation
+from continuation import PropContinuation, EndContinuation, Continuation
 class State(object):
     def __init__(self, tokens=None, net=None):
         if tokens is None:
@@ -18,6 +18,7 @@ class State(object):
         cont = PropContinuation(prop, EndContinuation(True), EndContinuation(False))
         state = self
         while not cont.is_done():
+            assert isinstance(cont, PropContinuation)
             cont, f, state = cont.activate(state)
         assert isinstance(cont, EndContinuation)
         return cont.result
