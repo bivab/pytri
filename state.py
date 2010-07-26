@@ -1,4 +1,7 @@
 from continuation import PropContinuation, EndContinuation, Continuation
+from pypy.rlib import jit
+jitdriver = jit.JitDriver(reds=["cont", "f", "state"], greens=["prop"])
+
 class State(object):
     def __init__(self, tokens=None, net=None):
         if tokens is None:
@@ -15,9 +18,13 @@ class State(object):
         return self.tokens[i]
 
     def evaluate(self, prop, default = False):
-        cont = PropContinuation(prop, EndContinuation(True), EndContinuation(False))
+        f = EndContinuation(False)
+        cont = PropContinuation(prop, EndContinuation(True), f)
         state = self
         while not cont.is_done():
+            prop = cont.prop
+            jitdriver.can_enter_jit(cont=cont, f=f, state=state, prop=prop)
+            jitdriver.jit_merge_point(cont=cont, f=f, state=state, prop=prop)
             cont, f, state = cont.activate(state)
         assert isinstance(cont, EndContinuation)
         return cont.result

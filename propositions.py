@@ -1,6 +1,8 @@
 from continuation import EndContinuation, PropContinuation, KeepLookingContinuation
 
 class Proposition(object):
+    __slots__ = ()
+    _immutable_ = True
     def __init__(self):
         pass
 
@@ -11,6 +13,8 @@ class Proposition(object):
         raise NameError
 
 class LessProposition(Proposition):
+    __slots__ = ('left', 'right')
+    _immutable_ = True
     def __init__(self, left, right):
         Proposition.__init__(self)
         self.left = left
@@ -28,6 +32,7 @@ class LessProposition(Proposition):
     __repr__ = label
 
 class EqualsProposition(Proposition):
+    _immutable_ = True
     def __init__(self, left, right):
         self.left = left
         self.right = right
@@ -44,6 +49,8 @@ class EqualsProposition(Proposition):
     __repr__ = label
 
 class TrueProposition(Proposition):
+    _immutable_ = True
+
     def evaluate(self, state, s, f):
         return s, f, state
 
@@ -54,6 +61,8 @@ class TrueProposition(Proposition):
     __repr__ = label
 
 class FalseProposition(Proposition):
+    _immutable_ = True
+
     def evaluate(self, state, s, f):
        return f, s, state
 
@@ -64,6 +73,8 @@ class FalseProposition(Proposition):
     __repr__ = label
 
 class NegationProposition(Proposition):
+    _immutable_ = True
+
     def __init__(self, proposition):
         self.proposition = proposition
 
@@ -77,6 +88,8 @@ class NegationProposition(Proposition):
     __repr__ = label
 
 class AndProposition(Proposition):
+    _immutable_ = True
+
     def __init__(self, left, right):
         self.left = left
         self.right = right
@@ -95,6 +108,8 @@ def OrProposition(left, right):
     return NegationProposition(AndProposition(NegationProposition(left), NegationProposition(right)))
 
 class EUProposition(Proposition):
+    __slots__ = ('first', 'second')
+    _immutable_ = True
     def __init__(self, first, second):
         self.first = first
         self.second = second
@@ -111,6 +126,9 @@ class EUProposition(Proposition):
         return PropContinuation(self.second, s, nf), f, state
 
 class EGProposition(Proposition):
+    __slots__ = 'proposition'
+    _immutable_ = True
+
     def __init__(self, proposition):
         self.proposition = proposition
 
@@ -126,6 +144,8 @@ class EGProposition(Proposition):
                 KeepLookingContinuation(self, s, f, state.successors(), True), f, True), f, state
 
 class EXProposition(Proposition):
+    __slots__ = 'proposition'
+    _immutable_ = True
     def __init__(self, proposition):
         self.proposition = proposition
 
