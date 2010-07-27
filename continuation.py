@@ -1,3 +1,4 @@
+from pypy.rlib.objectmodel import specialize
 class Continuation(object):
     def __init__(self):
         pass
@@ -9,7 +10,7 @@ class Continuation(object):
         raise NameError
 
 class PropContinuation(Continuation):
-    def __init__(self, prop, succ, fail, mark = False):
+    def __init__(self, prop, succ, fail, mark=False):
         self.prop = prop
         self.succ = succ
         self.fail = fail
@@ -28,6 +29,7 @@ class PropContinuation(Continuation):
         return self.prop.evaluate(state, m1, m2)
 
 class KeepLookingContinuation(PropContinuation):
+    @specialize.arg(5)
     def __init__(self, prop, s, f, states, mark=False):
         PropContinuation.__init__(self, prop, s, f)
         self.states = states
@@ -44,6 +46,7 @@ class KeepLookingContinuation(PropContinuation):
         return self.succ, self.fail, state
 
 class MarkContinuation(PropContinuation):
+    @specialize.arg(5)
     def __init__(self, prop, state, succ, fail, mark=False):
         PropContinuation.__init__(self, prop, succ, fail)
         self.state = state
