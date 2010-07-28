@@ -5,6 +5,9 @@ class Expression(object):
     def __init__(self, value):
         self.value = value
 
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.value == other.value
+
 class NumericExpression(Expression):
     _immutable_ = True
     def __init__(self,value):

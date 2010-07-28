@@ -14,6 +14,12 @@ class Proposition(object):
     def label(self):
         raise NameError
 
+    def __eq__(self, other):
+        return self.__class__ == other.__class__
+
+    def __neq__(self, other):
+        return not self == other
+
 class LessProposition(Proposition):
     __slots__ = ('left', 'right')
     _immutable_ = True
@@ -30,6 +36,9 @@ class LessProposition(Proposition):
     @jit.purefunction
     def label(self):
         return "(%s < %s)" % (self.left.label(), self.right.label())
+
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.left == other.left and self.right == other.right
 
     __str__ = label
     __repr__ = label
@@ -48,6 +57,9 @@ class EqualsProposition(Proposition):
     @jit.purefunction
     def label(self):
         return "(%s = %s)" % (self.left.label(), self.right.label())
+
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.left == other.left and self.right == other.right
 
     __str__ = label
     __repr__ = label
@@ -91,6 +103,9 @@ class NegationProposition(Proposition):
     def label(self):
         return "not(%s)" % self.proposition.label()
 
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.proposition == other.proposition
+
     __str__ = label
     __repr__ = label
 
@@ -107,6 +122,9 @@ class AndProposition(Proposition):
     @jit.purefunction
     def label(self):
         return "and(%s, %s)" % (self.left.label(), self.right.label())
+
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.left == other.left and self.right == other.right
 
     __str__ = label
     __repr__ = label
@@ -125,6 +143,9 @@ class EUProposition(Proposition):
     @jit.purefunction
     def label(self):
         return 'E(%s U %s)' % (self.first.label(), self.second.label())
+
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.first == other.first and self.second == other.second
 
     __str__ = label
     __repr__ = label
@@ -145,6 +166,9 @@ class EGProposition(Proposition):
     def label(self):
         return 'EG(%s)' % (self.proposition.label())
 
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.proposition == other.proposition
+
     __str__ = label
     __repr__ = label
 
@@ -162,6 +186,9 @@ class EXProposition(Proposition):
     @jit.purefunction
     def label(self):
         return 'EX(%s)' % (self.proposition.label())
+
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and self.proposition == other.proposition
 
     __str__ = label
     __repr__ = label
