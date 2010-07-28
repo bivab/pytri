@@ -1,5 +1,6 @@
 from continuation import PropContinuation, EndContinuation, Continuation
 from pypy.rlib import jit
+from pypy.rlib.objectmodel import specialize
 jitdriver = jit.JitDriver(reds=["cont", "f", "state"], greens=["prop"])
 
 class State(object):
@@ -29,10 +30,11 @@ class State(object):
         assert isinstance(cont, EndContinuation)
         return cont.result
 
-    def __eq__(self, other):
+    @specialize.argtype(0)
+    def equals(self, other):
         return self.tokens == other.tokens
 
-    equals = __eq__
+    __eq__ = equals
 
     def __ne__(self, other):
         return not self == other
