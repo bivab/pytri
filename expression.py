@@ -14,6 +14,7 @@ class NumericExpression(Expression):
     def eval(self, state):
         return self.value
 
+    @jit.purefunction
     def label(self):
         return "%d" % self.value
 
@@ -30,6 +31,7 @@ class VariableExpression(Expression):
     def eval(self, state):
         return state.get(self.value)
 
+    @jit.purefunction
     def label(self):
         return "$%d" % self.value
 

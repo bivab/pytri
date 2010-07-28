@@ -1,4 +1,5 @@
 from continuation import EndContinuation, PropContinuation, KeepLookingContinuation
+from pypy.rlib import jit
 
 class Proposition(object):
     __slots__ = ()
@@ -9,6 +10,7 @@ class Proposition(object):
     def evaluate(self, state, *args):
         raise NameError
 
+    @jit.purefunction
     def label(self):
         raise NameError
 
@@ -25,6 +27,7 @@ class LessProposition(Proposition):
             return s, f, state
         return f, s, state
 
+    @jit.purefunction
     def label(self):
         return "(%s < %s)" % (self.left.label(), self.right.label())
 
@@ -42,6 +45,7 @@ class EqualsProposition(Proposition):
             return s, f, state
         return f, s, state
 
+    @jit.purefunction
     def label(self):
         return "(%s = %s)" % (self.left.label(), self.right.label())
 
@@ -54,6 +58,7 @@ class TrueProposition(Proposition):
     def evaluate(self, state, s, f):
         return s, f, state
 
+    @jit.purefunction
     def label(self):
         return "true"
 
@@ -66,6 +71,7 @@ class FalseProposition(Proposition):
     def evaluate(self, state, s, f):
        return f, s, state
 
+    @jit.purefunction
     def label(self):
         return "false"
 
@@ -81,6 +87,7 @@ class NegationProposition(Proposition):
     def evaluate(self, state, s, f):
         return PropContinuation(self.proposition, f, s), s, state
 
+    @jit.purefunction
     def label(self):
         return "not(%s)" % self.proposition.label()
 
@@ -97,6 +104,7 @@ class AndProposition(Proposition):
     def evaluate(self, state, s, f):
         return PropContinuation(self.left, PropContinuation(self.right, s, f), f), EndContinuation(False), state
 
+    @jit.purefunction
     def label(self):
         return "and(%s, %s)" % (self.left.label(), self.right.label())
 
@@ -114,6 +122,7 @@ class EUProposition(Proposition):
         self.first = first
         self.second = second
 
+    @jit.purefunction
     def label(self):
         return 'E(%s U %s)' % (self.first.label(), self.second.label())
 
@@ -132,6 +141,7 @@ class EGProposition(Proposition):
     def __init__(self, proposition):
         self.proposition = proposition
 
+    @jit.purefunction
     def label(self):
         return 'EG(%s)' % (self.proposition.label())
 
@@ -149,6 +159,7 @@ class EXProposition(Proposition):
     def __init__(self, proposition):
         self.proposition = proposition
 
+    @jit.purefunction
     def label(self):
         return 'EX(%s)' % (self.proposition.label())
 
