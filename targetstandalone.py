@@ -6,18 +6,21 @@ from petri_net import PetriNet
 from propositions import LessProposition, EUProposition, EqualsProposition
 from transition import Transition
 from state import State
-from parse import parse_net
+from parse import parse_net, parse_props
 
 def entry_point(argv):
     file = argv[1]
     p, state = parse_net(read_file(file))
-    prop = EUProposition(LessProposition(NumericExpression(0),
-    VariableExpression(0)), EqualsProposition(VariableExpression(1),
-    NumericExpression(1000000)))
-    if state.evaluate(prop):
-        print "True"
-    else:
-        print "False"
+    props = parse_props(argv[2])
+    for p in props:
+        print p,"= ",
+        # XXX add time here
+        res = state.evaluate(p)
+        # XXX and here
+        if res:
+            print "True"
+        else:
+            print "False"
     return 0
 
 def read_file(filename):
