@@ -1,32 +1,64 @@
+from continuation import EndContinuation, PropContinuation, KeepLookingContinuation
+from pypy.rlib import jit
+
 class Proposition(object):
+    __slots__ = ()
+    _immutable_ = True
     def __init__(self):
         pass
 
     def evaluate(self, state, *args):
         raise NameError
 
+    @jit.purefunction
     def label(self):
         raise NameError
 
 class LessProposition(Proposition):
+    __slots__ = ('left', 'right')
+    _immutable_ = True
     def __init__(self, left, right):
         Proposition.__init__(self)
         self.left = left
         self.right = right
 
-    def evaluate(self, state):
-        return state.evaluate(self.left) < state.evaluate(self.right)
+    def evaluate(self, state, s, f):
+        if self.left.eval(state) < self.right.eval(state):
+            return s, f, state
+        return f, s, state
 
+    @jit.purefunction
     def label(self):
         return "(%s < %s)" % (self.left.label(), self.right.label())
 
     __str__ = label
     __repr__ = label
 
-class TrueProposition(Proposition):
-    def evaluate(self, state):
-        return True
+class EqualsProposition(Proposition):
+    _immutable_ = True
+    def __init__(self, left, right):
+        self.left = left
+        self.right = right
 
+    def evaluate(self, state, s, f):
+        if self.left.eval(state) == self.right.eval(state):
+            return s, f, state
+        return f, s, state
+
+    @jit.purefunction
+    def label(self):
+        return "(%s = %s)" % (self.left.label(), self.right.label())
+
+    __str__ = label
+    __repr__ = label
+
+class TrueProposition(Proposition):
+    _immutable_ = True
+
+    def evaluate(self, state, s, f):
+        return s, f, state
+
+    @jit.purefunction
     def label(self):
         return "true"
 
@@ -34,9 +66,12 @@ class TrueProposition(Proposition):
     __repr__ = label
 
 class FalseProposition(Proposition):
-    def evaluate(self, state):
-        return False
+    _immutable_ = True
 
+    def evaluate(self, state, s, f):
+       return f, s, state
+
+    @jit.purefunction
     def label(self):
         return "false"
 
@@ -44,12 +79,15 @@ class FalseProposition(Proposition):
     __repr__ = label
 
 class NegationProposition(Proposition):
+    _immutable_ = True
+
     def __init__(self, proposition):
         self.proposition = proposition
 
-    def evaluate(self, state):
-        return not state.evaluate(self.proposition)
+    def evaluate(self, state, s, f):
+        return PropContinuation(self.proposition, f, s), s, state
 
+    @jit.purefunction
     def label(self):
         return "not(%s)" % self.proposition.label()
 
@@ -57,92 +95,79 @@ class NegationProposition(Proposition):
     __repr__ = label
 
 class AndProposition(Proposition):
+    _immutable_ = True
+
     def __init__(self, left, right):
         self.left = left
         self.right = right
 
-    def evaluate(self, state):
-        return state.evaluate(self.left) and state.evaluate(self.right)
+    def evaluate(self, state, s, f):
+        return PropContinuation(self.left, PropContinuation(self.right, s, f), f), EndContinuation(False), state
 
+    @jit.purefunction
     def label(self):
         return "and(%s, %s)" % (self.left.label(), self.right.label())
 
     __str__ = label
     __repr__ = label
 
-class EqualsProposition(Proposition):
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
-
-    def evaluate(self, state):
-        return state.evaluate(self.left) == state.evaluate(self.right)
-        # cause == is too easy
-        # return AndProposition(NegationProposition(
-        #    LessProposition(self.left, self.right)),
-        #    NegationProposition(
-        #        LessProposition(self.right, self.left))).evaluate(state)
-
-    def label(self):
-        return "(%s = %s)" % (self.left.label(), self.right.label())
-
-    __str__ = label
-    __repr__ = label
 
 def OrProposition(left, right):
     return NegationProposition(AndProposition(NegationProposition(left), NegationProposition(right)))
 
 class EUProposition(Proposition):
+    __slots__ = ('first', 'second')
+    _immutable_ = True
     def __init__(self, first, second):
         self.first = first
         self.second = second
 
+    @jit.purefunction
     def label(self):
         return 'E(%s U %s)' % (self.first.label(), self.second.label())
 
     __str__ = label
     __repr__ = label
 
-    def evaluate(self, state):
-        if state.evaluate(self.second):
-            return True
-        if not state.evaluate(self.first):
-            return False
-        for s in state.successors():
-            if s.evaluate(self, False):
-                return True
-        return False
+    def evaluate(self, state, s, f):
+        k = KeepLookingContinuation(self, s, f, state.successors())
+        nf = PropContinuation(self.first, k, f)
+        return PropContinuation(self.second, s, nf), f, state
 
 class EGProposition(Proposition):
+    __slots__ = 'proposition'
+    _immutable_ = True
+
     def __init__(self, proposition):
         self.proposition = proposition
 
+    @jit.purefunction
     def label(self):
         return 'EG(%s)' % (self.proposition.label())
 
     __str__ = label
     __repr__ = label
 
-    def evaluate(self, state):
-        if not state.evaluate(self.proposition):
-            return False
-        for s in state.successors():
-            if s.evaluate(self, True):
-                return True
-        return False
+    def evaluate(self, state, s, f):
+        # XXX build successors lazily in another cont
+        return PropContinuation(self.proposition,
+                KeepLookingContinuation(self, s, f, state.successors(), True), f, True), f, state
 
 class EXProposition(Proposition):
+    __slots__ = 'proposition'
+    _immutable_ = True
     def __init__(self, proposition):
         self.proposition = proposition
 
+    @jit.purefunction
     def label(self):
         return 'EX(%s)' % (self.proposition.label())
 
     __str__ = label
     __repr__ = label
 
-    def evaluate(self, state):
-        for s in state.successors():
-            if s.evaluate(self.proposition):
-                return True
-        return False
+    def evaluate(self, state, s, f):
+        states = state.successors()
+        next_state = states.pop()
+        next_cont = KeepLookingContinuation(self.proposition, s, f, states)
+        return PropContinuation(self.proposition, s, next_cont), f, next_state

@@ -1,3 +1,8 @@
+from continuation import PropContinuation, EndContinuation, Continuation
+from pypy.rlib import jit
+from pypy.rlib.objectmodel import specialize
+jitdriver = jit.JitDriver(reds=["cont", "f", "state"], greens=["prop"])
+
 class State(object):
     def __init__(self, tokens=None, net=None):
         if tokens is None:
@@ -14,16 +19,22 @@ class State(object):
         return self.tokens[i]
 
     def evaluate(self, prop, default = False):
-        if prop in self.labels:
-            return self.labels[prop]
-        self.labels[prop] = default
-        self.labels[prop] = prop.evaluate(self)
-        return self.labels[prop]
+        f = EndContinuation(False)
+        cont = PropContinuation(prop, EndContinuation(True), f)
+        state = self
+        while not cont.is_done():
+            prop = cont.prop
+            jitdriver.can_enter_jit(cont=cont, f=f, state=state, prop=prop)
+            jitdriver.jit_merge_point(cont=cont, f=f, state=state, prop=prop)
+            cont, f, state = cont.activate(state)
+        assert isinstance(cont, EndContinuation)
+        return cont.result
 
-    def __eq__(self, other):
+    @specialize.argtype(0)
+    def equals(self, other):
         return self.tokens == other.tokens
 
-    equals = __eq__
+    __eq__ = equals
 
     def __ne__(self, other):
         return not self == other
