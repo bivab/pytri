@@ -26,7 +26,7 @@ def test_parse_ctl():
 EX false
 E true U false
 EX true & not false
-EG not(false & not true )
+EG not(false & not true)
 EG $1 < 100 & 0 = $1
 EX true | false""")
 
@@ -37,3 +37,9 @@ EX true | false""")
     assert ctls[4] == EGProposition(NegationProposition(AndProposition(FalseProposition(), NegationProposition(TrueProposition()))))
     assert ctls[5] == EGProposition(AndProposition(LessProposition(VariableExpression(1), NumericExpression(100)), EqualsProposition(NumericExpression(0), VariableExpression(1))))
     assert ctls[6] == EXProposition(OrProposition(TrueProposition(), FalseProposition()))
+
+def test_parse_ctl_paren():
+    ctl = parse_props("""EG not(true)
+    EX not(true & false)""")
+    assert ctl[0] == EGProposition(NegationProposition(TrueProposition()))
+    assert ctl[1] == EXProposition(NegationProposition(AndProposition(TrueProposition(), FalseProposition())))

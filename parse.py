@@ -160,21 +160,19 @@ class PropParser(object):
         token = self.tokens[-1]
         if token.name == 'Bools':
             return self.parse_boolean()
-        lhs = self.parse_atomic()
-        assert isinstance(lhs, propositions.Proposition)
-        if self.tokens and self.tokens[-1].name == 'Op':
-            op = self.tokens.pop()
-            rhs = self.parse_atomic()
-            assert isinstance(rhs, propositions.Proposition)
-            if op.source == '=':
-                return propositions.EqualsProposition(lhs, rhs)
-            elif op.source == '<':
-                return propositions.LessProposition(lhs, rhs)
-            else:
-                assert 0, 'oh noes'
-        else:
-            return lhs
+        if token.name == 'Par':
+            return self.parse_sub_proposition()
 
+        lhs = self.parse_atomic()
+        assert self.tokens[-1].name == 'Op'
+        op = self.tokens.pop()
+        rhs = self.parse_atomic()
+        if op.source == '=':
+            return propositions.EqualsProposition(lhs, rhs)
+        elif op.source == '<':
+            return propositions.LessProposition(lhs, rhs)
+        else:
+            assert 0, 'oh noes'
 
     def parse_boolean(self):
         token = self.tokens.pop()
@@ -184,8 +182,6 @@ class PropParser(object):
 
     def parse_atomic(self):
         token = self.tokens[-1]
-        if token.name == 'Par':
-            v = self.parse_sub_proposition()
         if token.name == 'Dollar':
             v = self.parse_variable()
             assert isinstance(v, expression.VariableExpression)
@@ -194,7 +190,6 @@ class PropParser(object):
             assert isinstance(value, int)
             v = expression.NumericExpression(value)
             assert isinstance(v, expression.NumericExpression)
-        assert isinstance(v, propositions.Proposition)
         return v
 
     def parse_variable(self):
