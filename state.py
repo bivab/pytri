@@ -4,12 +4,13 @@ from pypy.rlib.objectmodel import specialize
 jitdriver = jit.JitDriver(reds=["cont", "f", "state"], greens=["prop"])
 
 class State(object):
+    _immutable_ = True
+    __slots__ = ('tokens', 'net','labels')
     def __init__(self, tokens=None, net=None):
         if tokens is None:
             tokens = []
         self.tokens = tokens
         self.net = net
-        self._successors = None
         self.labels = {}
 
     def successors(self):

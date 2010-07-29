@@ -1,5 +1,7 @@
 from pypy.rlib.objectmodel import specialize
 class Continuation(object):
+    __slots__ = ('prop', 'mark')
+    _imutable_ = True
     def __init__(self):
         pass
 
@@ -10,6 +12,9 @@ class Continuation(object):
         raise NameError
 
 class PropContinuation(Continuation):
+    __slots__ = ('prop', 'succ', 'fail')
+    _imutable_ = True
+
     def __init__(self, prop, succ, fail, mark=False):
         self.prop = prop
         self.succ = succ
@@ -29,6 +34,9 @@ class PropContinuation(Continuation):
         return self.prop.evaluate(state, m1, m2)
 
 class KeepLookingContinuation(PropContinuation):
+    _immutable_fields_ = ["states"]
+    __slots__ = ('states', 'i')
+
     @specialize.arg(5)
     def __init__(self, prop, s, f, states, mark=False):
         PropContinuation.__init__(self, prop, s, f)
@@ -47,6 +55,8 @@ class KeepLookingContinuation(PropContinuation):
         return self.fail, self.succ, state
 
 class MarkContinuation(PropContinuation):
+    _immutable_ = True
+    __slots__ = ('state')
     @specialize.arg(5)
     def __init__(self, prop, state, succ, fail, mark=False):
         PropContinuation.__init__(self, prop, succ, fail)
@@ -58,6 +68,10 @@ class MarkContinuation(PropContinuation):
         return self.succ, self.fail, state
 
 class EndContinuation(Continuation):
+    _immutable_ = True
+    __slots__ = ('result')
+
+    @specialize.arg(1)
     def __init__(self, result):
         Continuation.__init__(self)
         self.result = result

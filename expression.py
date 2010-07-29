@@ -2,6 +2,7 @@ from pypy.rlib import jit
 class Expression(object):
     __slots__ = 'value'
     _immutable_ = True
+
     def __init__(self, value):
         self.value = value
 
@@ -16,6 +17,7 @@ class Expression(object):
 
 class NumericExpression(Expression):
     _immutable_ = True
+
     def __init__(self,value):
         Expression.__init__(self, value)
 
