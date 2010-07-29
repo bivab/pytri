@@ -13,6 +13,8 @@ def entry_point(argv):
     file = argv[1]
     p, state = parse_net(read_file(file))
     props = parse_props(argv[2])
+    for prop in props:
+        print prop.label()
     g_start = time.time()
     for p in props:
         print p.label(),"= ",
