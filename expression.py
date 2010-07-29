@@ -8,6 +8,12 @@ class Expression(object):
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.value == other.value
 
+    def label(self):
+        raise NotImplementedError('abstract base class')
+
+    def eval(self, state):
+        raise NotImplementedError('abstract base class')
+
 class NumericExpression(Expression):
     _immutable_ = True
     def __init__(self,value):

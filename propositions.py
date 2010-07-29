@@ -8,11 +8,10 @@ class Proposition(object):
         pass
 
     def evaluate(self, state, *args):
-        raise NameError
+        raise NotImplementedError('abstract base class')
 
-    @jit.purefunction
     def label(self):
-        raise NameError
+        raise NotImplementedError('abstract base class')
 
     def __eq__(self, other):
         return self.__class__ == other.__class__
