@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 # __________  Entry point  __________
 from expression import NumericExpression, VariableExpression
 from petri_net import PetriNet
@@ -12,15 +13,20 @@ def entry_point(argv):
     file = argv[1]
     p, state = parse_net(read_file(file))
     props = parse_props(argv[2])
+    g_start = time.time()
     for p in props:
         print p.label(),"= ",
-        # XXX add time here
+        start = time.time()
         res = state.evaluate(p)
-        # XXX and here
+        end = time.time()
         if res:
-            print "True"
+            print "True",
         else:
-            print "False"
+            print "False",
+
+        print "(%f)" % (end -start,)
+    g_end = time.time()
+    print "Total runtime %f" % (g_end - g_start, )
     return 0
 
 def read_file(filename):
