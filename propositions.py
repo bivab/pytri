@@ -2,15 +2,15 @@ from continuation import EndContinuation, PropContinuation, KeepLookingContinuat
 from pypy.rlib import jit
 
 class Proposition(object):
-    __slots__ = ()
+    __slots__ = ('cached_label', )
     _immutable_ = True
     def __init__(self):
-        pass
+        self.cached_label = None
 
     def evaluate(self, state, *args):
         raise NotImplementedError('abstract base class')
 
-    def label(self):
+    def _label(self):
         raise NotImplementedError('abstract base class')
 
     def __eq__(self, other):
@@ -18,6 +18,15 @@ class Proposition(object):
 
     def __neq__(self, other):
         return not self == other
+
+    @jit.purefunction
+    def label(self):
+        if not self.cached_label:
+            self.cached_label = self._label()
+        return self.cached_label
+
+    __str__ = label
+    __repr__ = label
 
 class LessProposition(Proposition):
     __slots__ = ('left', 'right')
@@ -32,19 +41,19 @@ class LessProposition(Proposition):
             return s, f, state
         return f, s, state
 
+
     @jit.purefunction
-    def label(self):
+    def _label(self):
         return "(%s < %s)" % (self.left.label(), self.right.label())
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.left == other.left and self.right == other.right
 
-    __str__ = label
-    __repr__ = label
 
 class EqualsProposition(Proposition):
     _immutable_ = True
     def __init__(self, left, right):
+        Proposition.__init__(self)
         self.left = left
         self.right = right
 
@@ -54,14 +63,12 @@ class EqualsProposition(Proposition):
         return f, s, state
 
     @jit.purefunction
-    def label(self):
+    def _label(self):
         return "(%s = %s)" % (self.left.label(), self.right.label())
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.left == other.left and self.right == other.right
 
-    __str__ = label
-    __repr__ = label
 
 class TrueProposition(Proposition):
     _immutable_ = True
@@ -70,11 +77,9 @@ class TrueProposition(Proposition):
         return s, f, state
 
     @jit.purefunction
-    def label(self):
+    def _label(self):
         return "true"
 
-    __str__ = label
-    __repr__ = label
 
 class FalseProposition(Proposition):
     _immutable_ = True
@@ -83,35 +88,33 @@ class FalseProposition(Proposition):
        return f, s, state
 
     @jit.purefunction
-    def label(self):
+    def _label(self):
         return "false"
 
-    __str__ = label
-    __repr__ = label
 
 class NegationProposition(Proposition):
     _immutable_ = True
 
     def __init__(self, proposition):
+        Proposition.__init__(self)
         self.proposition = proposition
 
     def evaluate(self, state, s, f):
         return PropContinuation(self.proposition, f, s), s, state
 
     @jit.purefunction
-    def label(self):
+    def _label(self):
         return "not(%s)" % self.proposition.label()
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.proposition == other.proposition
 
-    __str__ = label
-    __repr__ = label
 
 class AndProposition(Proposition):
     _immutable_ = True
 
     def __init__(self, left, right):
+        Proposition.__init__(self)
         self.left = left
         self.right = right
 
@@ -119,14 +122,12 @@ class AndProposition(Proposition):
         return PropContinuation(self.left, PropContinuation(self.right, s, f), f), EndContinuation(False), state
 
     @jit.purefunction
-    def label(self):
+    def _label(self):
         return "and(%s, %s)" % (self.left.label(), self.right.label())
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.left == other.left and self.right == other.right
 
-    __str__ = label
-    __repr__ = label
 
 
 def OrProposition(left, right):
@@ -136,18 +137,17 @@ class EUProposition(Proposition):
     __slots__ = ('first', 'second')
     _immutable_ = True
     def __init__(self, first, second):
+        Proposition.__init__(self)
         self.first = first
         self.second = second
 
     @jit.purefunction
-    def label(self):
+    def _label(self):
         return 'E(%s U %s)' % (self.first.label(), self.second.label())
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.first == other.first and self.second == other.second
 
-    __str__ = label
-    __repr__ = label
 
     def evaluate(self, state, s, f):
         k = KeepLookingContinuation(self, s, f, state.successors())
@@ -159,17 +159,16 @@ class EGProposition(Proposition):
     _immutable_ = True
 
     def __init__(self, proposition):
+        Proposition.__init__(self)
         self.proposition = proposition
 
     @jit.purefunction
-    def label(self):
+    def _label(self):
         return 'EG(%s)' % (self.proposition.label())
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.proposition == other.proposition
 
-    __str__ = label
-    __repr__ = label
 
     def evaluate(self, state, s, f):
         # XXX build successors lazily in another cont
@@ -180,17 +179,16 @@ class EXProposition(Proposition):
     __slots__ = 'proposition'
     _immutable_ = True
     def __init__(self, proposition):
+        Proposition.__init__(self)
         self.proposition = proposition
 
     @jit.purefunction
-    def label(self):
+    def _label(self):
         return 'EX(%s)' % (self.proposition.label())
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.proposition == other.proposition
 
-    __str__ = label
-    __repr__ = label
 
     def evaluate(self, state, s, f):
         states = state.successors()
