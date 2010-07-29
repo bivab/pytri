@@ -84,6 +84,11 @@ def test_eu_proposition_2():
     VariableExpression(0)), TrueProposition())
     assert s1.evaluate(prop) == True
 
+def test_eu_proposition_3():
+    p = PetriNet([])
+    s = State([], p)
+    prop = EUProposition(TrueProposition(), FalseProposition())
+    assert s.evaluate(prop) == False
 def test_eu_loop():
     t = Transition([0], [0])
     p = PetriNet([t])

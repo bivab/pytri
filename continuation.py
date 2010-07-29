@@ -42,8 +42,9 @@ class KeepLookingContinuation(PropContinuation):
             return PropContinuation(self.prop, self.succ, self, self.mark), self.fail, self.states[self.i]
         if self.i == 0:
             return PropContinuation(self.prop, self.succ, self.fail, self.mark), self.fail, self.states[0]
-        # XXX why?
-        return self.succ, self.fail, state
+        if self.mark:
+            return self.succ, self.fail, state
+        return self.fail, self.succ, state
 
 class MarkContinuation(PropContinuation):
     @specialize.arg(5)
