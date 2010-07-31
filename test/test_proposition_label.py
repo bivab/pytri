@@ -1,4 +1,3 @@
-from animator import Animator
 from propositions import FalseProposition, AndProposition, EqualsProposition
 from propositions import LessProposition, NegationProposition, TrueProposition
 from propositions import OrProposition, EUProposition

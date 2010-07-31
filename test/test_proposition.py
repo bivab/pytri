@@ -1,4 +1,3 @@
-from animator import Animator
 from propositions import FalseProposition, AndProposition, EqualsProposition
 from propositions import LessProposition, NegationProposition, TrueProposition
 from propositions import OrProposition, EUProposition, EGProposition, EXProposition
@@ -52,12 +51,6 @@ def test_petri_net_with_propositions():
     s1 = State([1,0], p)
     assert s1.evaluate(AndProposition(EqualsProposition(VariableExpression(0), NumericExpression(1)),
                                     EqualsProposition(VariableExpression(1), NumericExpression(0))))
-    a = Animator(p, s1)
-    a.step()
-    s2 = s1.successors()[0]
-    assert s2.evaluate(AndProposition(EqualsProposition(VariableExpression(0), NumericExpression(0)),
-                                    EqualsProposition(VariableExpression(1),
-                                    NumericExpression(1))))
 
 
 def test_eu_proposition():
