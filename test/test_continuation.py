@@ -7,6 +7,7 @@ from petri_net import PetriNet
 from transition import Transition
 from expression import VariableExpression, NumericExpression
 from continuation import PropContinuation, EndContinuation
+from parse import parse_net, parse_props
 state = State([2,0,0,1,0])
 
 def test_prop_continuation_true_prop():
@@ -104,6 +105,23 @@ def test_mark_continuation_false():
     s1 = State([1])
     assert run(prop, s1) == False
     assert s1.labels[p.label()] == False
+def test_eg_continuation1():
+    net, state = parse_net("""
+P:7
+T:0->1
+T:0->2
+T:0->3
+T:0->4
+T:0->5
+T:0->6
+S:1|0|0|0|0|0|0
+""")
+    prop = parse_props('EG true')[0]
+    prop1 = parse_props('EG false')[0]
+    cont = PropContinuation(prop, EndContinuation(True), EndContinuation(False))
+    cont1 = PropContinuation(prop1, EndContinuation(True), EndContinuation(False))
+    assert run(cont, state) == True
+    assert run(cont1, state) == False
 
 def run(cont, state):
     while not cont.is_done():

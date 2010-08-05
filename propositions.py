@@ -1,4 +1,4 @@
-from continuation import EndContinuation, PropContinuation, KeepLookingContinuation
+from continuation import EndContinuation, PropContinuation, KeepLookingContinuation, EGContinuation
 from pypy.rlib import jit
 
 class Proposition(object):
@@ -171,9 +171,7 @@ class EGProposition(Proposition):
 
 
     def evaluate(self, state, s, f):
-        # XXX build successors lazily in another cont
-        return PropContinuation(self.proposition,
-                KeepLookingContinuation(self, s, f, state.successors(), True), f, True), f, state
+        return EGContinuation(self, s, f, state), f, state
 
 class EXProposition(Proposition):
     __slots__ = 'proposition'
