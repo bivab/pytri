@@ -1,4 +1,5 @@
 from continuation import EndContinuation, PropContinuation, KeepLookingContinuation, EGContinuation
+from continuation import EXContinuation
 from pypy.rlib import jit
 
 class Proposition(object):
@@ -189,7 +190,4 @@ class EXProposition(Proposition):
 
 
     def evaluate(self, state, s, f):
-        states = state.successors()
-        next_state = states.pop()
-        next_cont = KeepLookingContinuation(self.proposition, s, f, states)
-        return PropContinuation(self.proposition, s, next_cont), f, next_state
+        return EXContinuation(self.proposition, state, s, f), f, state
