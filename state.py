@@ -31,17 +31,25 @@ class State(object):
         assert isinstance(cont, EndContinuation)
         return cont.result
 
-    @specialize.argtype(0)
     def equals(self, other):
-        return self.tokens == other.tokens
+        assert isinstance(other, type(self))
+        for x in range(len(self.tokens)):
+            if self.tokens[x] != other.tokens[x]:
+                return False
+        return True
 
     __eq__ = equals
 
     def __ne__(self, other):
         return not self == other
 
-    def __hash__(self):
-        return hash(tuple(self.tokens))
+    def hash(self):
+        result = 0
+        for i in range(len(self.tokens)):
+            result += (1+i) * 41 * self.tokens[i]
+        return result
+
+    __hash__ = hash
 
     def __repr__(self):
         return 'State(%r)' % self.tokens
