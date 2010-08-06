@@ -123,6 +123,18 @@ S:1|0|0|0|0|0|0
     assert run(cont, state) == True
     assert run(cont1, state) == False
 
+def test_eg_continuation2():
+    net, state = parse_net("""
+P:5
+T:0->1
+T:0->2
+T:1->3
+T:2->4
+S:1|0|0|0|0""")
+    prop = parse_props('EG $4=0')[0]
+    cont = PropContinuation(prop, EndContinuation(True), EndContinuation(False))
+    assert run(cont, state) == False
+
 def test_ex_continuation():
     net, state = parse_net("""
 P:7

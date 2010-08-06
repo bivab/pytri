@@ -33,27 +33,6 @@ class PropContinuation(Continuation):
         m2 = MarkContinuation(self.prop, state, self.fail, self.fail, False)
         return self.prop.evaluate(state, m1, m2)
 
-class KeepLookingContinuation(PropContinuation):
-    _immutable_fields_ = ["states"]
-    __slots__ = ('states', 'i')
-
-    @specialize.arg(5)
-    def __init__(self, prop, s, f, states, mark=False):
-        PropContinuation.__init__(self, prop, s, f)
-        self.states = states
-        self.i = len(states)
-        self.mark = mark
-
-    def activate(self, state):
-        self.i -= 1
-        if self.i > 0:
-            return PropContinuation(self.prop, self.succ, self, self.mark), self.fail, self.states[self.i]
-        if self.i == 0:
-            return PropContinuation(self.prop, self.succ, self.fail, self.mark), self.fail, self.states[0]
-        if self.mark:
-            return self.succ, self.fail, state
-        return self.fail, self.succ, state
-
 class EUContinuation(PropContinuation):
     __slots__ = ('activated', 'states', 'i')
 
@@ -100,7 +79,7 @@ class EGContinuation(PropContinuation):
             import propositions
             p = self.prop
             assert isinstance(p, propositions.EGProposition)
-            return PropContinuation(p.proposition, self, self.fail, True), self.fail, state
+            return PropContinuation(p.proposition, self, self.fail, False), self.fail, state
 
 class EXContinuation(PropContinuation):
     _immutable_fields_ = ["states"]
