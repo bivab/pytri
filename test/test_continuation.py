@@ -123,6 +123,38 @@ S:1|0|0|0|0|0|0
     assert run(cont, state) == True
     assert run(cont1, state) == False
 
+def test_ex_continuation():
+    net, state = parse_net("""
+P:7
+T:0->1
+T:0->2
+T:0->3
+T:0->4
+T:0->5
+T:0->6
+S:1|0|0|0|0|0|0
+""")
+    prop = parse_props('EX $5 = 1')[0]
+    cont = PropContinuation(prop, EndContinuation(True), EndContinuation(False))
+    assert run(cont, state) == True
+
+
+def test_eu_continuation():
+    net, state = parse_net("""
+P:7
+T:0->1
+T:0->2
+T:0->3
+T:0->4
+T:0->5
+T:0->6
+S:1|0|0|0|0|0|0
+""")
+    prop = parse_props('E true U $6 = 1')[0]
+    prop1 = parse_props('E true U $6 = 1')[0]
+    cont = PropContinuation(prop, EndContinuation(True), EndContinuation(False))
+    assert run(cont, state) == True
+
 def run(cont, state):
     while not cont.is_done():
         cont, f, state = cont.activate(state)

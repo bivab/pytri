@@ -54,6 +54,27 @@ class KeepLookingContinuation(PropContinuation):
             return self.succ, self.fail, state
         return self.fail, self.succ, state
 
+class EUContinuation(PropContinuation):
+    __slots__ = ('activated', 'states', 'i')
+
+    def __init__(self, prop, s, f):
+        PropContinuation.__init__(self, prop, s, f)
+        self.activated = False
+        self.states = None
+        self.i = -1
+
+    def activate(self, state):
+        if not self.activated:
+            self.activated = True
+            return PropContinuation(self.prop.second, self.succ, PropContinuation(self.prop.first, self, self.fail)), self.fail, state
+        else:
+            if self.states is None:
+                self.states = state.successors()
+            self.i += 1
+            if self.i >= len(self.states):
+                return self.fail, self.succ, state
+            return PropContinuation(self.prop, self.succ, self), self.fail, self.states[self.i]
+
 class EGContinuation(PropContinuation):
     _immutable_fields_ = ["states", 'state']
     __slots__ = ('states', 'state', 'i', 'activated')

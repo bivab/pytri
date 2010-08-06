@@ -1,5 +1,5 @@
-from continuation import EndContinuation, PropContinuation, KeepLookingContinuation, EGContinuation
-from continuation import EXContinuation
+from continuation import EndContinuation, PropContinuation
+from continuation import EXContinuation, EUContinuation, EGContinuation
 from pypy.rlib import jit
 
 class Proposition(object):
@@ -151,9 +151,7 @@ class EUProposition(Proposition):
 
 
     def evaluate(self, state, s, f):
-        k = KeepLookingContinuation(self, s, f, state.successors())
-        nf = PropContinuation(self.first, k, f)
-        return PropContinuation(self.second, s, nf), f, state
+        return EUContinuation(self, s, f), f, state
 
 class EGProposition(Proposition):
     __slots__ = 'proposition'
