@@ -170,7 +170,7 @@ class EGProposition(Proposition):
 
 
     def evaluate(self, state, s, f):
-        return EGContinuation(self, s, f, state), f, state
+        return EGContinuation(self, s, f), f, state
 
 class EXProposition(Proposition):
     __slots__ = 'proposition'
