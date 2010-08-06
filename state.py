@@ -43,15 +43,5 @@ class State(object):
     def __ne__(self, other):
         return not self == other
 
-
-    def hash(self):
-        result = 0
-        # XXX correct?
-        for i in range(len(self.tokens)):
-            result += (1+i) * 17 * self.tokens[i]
-        return result
-
-    __hash__ = hash
-
     def __repr__(self):
         return 'State(%r)' % self.tokens
