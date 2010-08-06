@@ -11,7 +11,7 @@ from parse import parse_net, parse_props
 
 def entry_point(argv):
     file = argv[1]
-    p, state = parse_net(read_file(file))
+    net, state = parse_net(read_file(file))
     props = parse_props(argv[2])
     for prop in props:
         print prop.label()
@@ -29,6 +29,7 @@ def entry_point(argv):
         print "(%f)" % (end -start,)
     g_end = time.time()
     print "Total runtime %f" % (g_end - g_start, )
+    print "Calculated %d states" % len(net._states_cache)
     return 0
 
 def read_file(filename):
@@ -51,7 +52,7 @@ def target(driver, args):
     return entry_point, None
 
 def portal(driver):
-    raise 'fasdfasdf'
+    pass
 
 def jitpolicy(self):
     from pypy.jit.metainterp.policy import JitPolicy
