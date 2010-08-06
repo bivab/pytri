@@ -77,18 +77,19 @@ class EUContinuation(PropContinuation):
 
 class EGContinuation(PropContinuation):
     _immutable_fields_ = ["states", 'state']
-    __slots__ = ('states', 'state', 'i', 'activated')
-    def __init__(self, prop, s, f, state):
+    __slots__ = ('states', 'i', 'activated')
+    def __init__(self, prop, s, f, state=None):
         PropContinuation.__init__(self, prop, s, f)
         self.activated = False
-        self.state = state
-        self.states = state.successors()
-        self.i = len(self.states)
+        self.i = -1
+        self.states = None
 
     def activate(self, state):
         if self.activated:
-            self.i -= 1
-            if self.i < 0:
+            if self.states is None:
+                self.states = state.successors()
+            self.i += 1
+            if self.i >= len(self.states):
                 return self.succ, self.fail, state
             return PropContinuation(self.prop, self, self.fail, True), self.fail, self.states[self.i]
         else:
