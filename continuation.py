@@ -1,7 +1,7 @@
 from pypy.rlib.objectmodel import specialize
 class Continuation(object):
     __slots__ = ('prop', 'mark')
-    _imutable_ = True
+    _immutable_ = True
     def __init__(self):
         pass
 
@@ -13,7 +13,7 @@ class Continuation(object):
 
 class PropContinuation(Continuation):
     __slots__ = ('prop', 'succ', 'fail')
-    _imutable_ = True
+    _immutable_ = True
 
     def __init__(self, prop, succ, fail, mark=False):
         self.prop = prop
