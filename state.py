@@ -3,6 +3,19 @@ from pypy.rlib import jit
 from pypy.rlib.objectmodel import specialize
 jitdriver = jit.JitDriver(reds=["cont", "f", "state"], greens=["prop"])
 
+def state_eq(self, other):
+        assert isinstance(other, type(self))
+        for x in range(len(self.tokens)):
+            if self.tokens[x] != other.tokens[x]:
+                return False
+        return True
+
+def state_hash(state):
+    result = 0
+    for i in range(len(state.tokens)):
+        result += (i+1) * (31*(i*2)) * state.tokens[i]
+    return result
+
 class State(object):
     _immutable_ = True
     __slots__ = ('tokens', 'net','labels')
@@ -31,14 +44,9 @@ class State(object):
         assert isinstance(cont, EndContinuation)
         return cont.result
 
-    def equals(self, other):
-        assert isinstance(other, type(self))
-        for x in range(len(self.tokens)):
-            if self.tokens[x] != other.tokens[x]:
-                return False
-        return True
-
+    equals = state_eq
     __eq__ = equals
+    __hash__ = state_hash
 
     def __ne__(self, other):
         return not self == other
