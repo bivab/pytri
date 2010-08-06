@@ -8,7 +8,7 @@ class Transition(object):
         self.output = output
 
     def fire(self, state):
-        result = state.tokens[:]
+        result = list(state.tokens)
         for place in self.input:
             result[place] -= 1
         for place in self.output:
@@ -21,3 +21,6 @@ class Transition(object):
                 return False
         return True
 
+    def __str__(self):
+        return ''.join([str(self.input), '->', str(self.output)])
+    __repr__ = __str__

@@ -14,3 +14,11 @@ class PetriNet(object):
     def enabled_transitions(self, state):
         return [c for c in self.transitions if c.can_fire(state)]
 
+    def __str__(self):
+        result = []
+        for t in self.transitions:
+            result.append(str(t))
+            result.append('\n')
+        return ''.join(result)
+
+
