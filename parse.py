@@ -112,13 +112,21 @@ class PropParser(object):
         self.tokens = f_lexer.tokenize(self.code)
         self.tokens.reverse()
         while self.tokens:
-            token = self.tokens.pop()
-            assert token.name == 'E'
-            if self.tokens[-1].name == 'CTL_UNARY':
-                self.props.append(self.parse_unary_operator())
-            else:
-                self.props.append(self.parse_binary_operator())
+            prop = self.parse_formula()
+            self.props.append(prop)
         return self.props
+
+    def parse_formula(self):
+        token = self.tokens[-1]
+        if token.name == 'E':
+            self.tokens.pop()
+            if self.tokens[-1].name == 'CTL_UNARY':
+                x = self.parse_unary_operator()
+            else:
+                x = self.parse_binary_operator()
+        else:
+            x = self.parse_binary_boolean()
+        return x
 
     def parse_unary_operator(self):
         token = self.tokens.pop().source
@@ -198,7 +206,7 @@ class PropParser(object):
 
     def parse_sub_proposition(self):
         assert self.tokens.pop().source == '('
-        prop = self.parse_binary_boolean()
+        prop = self.parse_formula()
         assert isinstance(prop, propositions.Proposition)
         assert self.tokens.pop().source == ')'
         return prop

@@ -43,3 +43,7 @@ def test_parse_ctl_paren():
     EX not(true & false)""")
     assert ctl[0] == EGProposition(NegationProposition(TrueProposition()))
     assert ctl[1] == EXProposition(NegationProposition(AndProposition(TrueProposition(), FalseProposition())))
+
+def test_parse_top_level_not():
+    f = parse_props("""not(EG false)""")
+    assert f[0] == NegationProposition(EGProposition(FalseProposition()))
