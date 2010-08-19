@@ -1,5 +1,5 @@
-from continuation import EndContinuation, PropContinuation
-from continuation import EXContinuation, EUContinuation, EGContinuation
+from continuation import EndContinuation, PropContinuation, \
+                         EXContinuation, EUContinuation, EGContinuation
 from pypy.rlib import jit
 
 class Proposition(object):
@@ -70,8 +70,10 @@ class EqualsProposition(Proposition):
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.left == other.left and self.right == other.right
 
+class NonCachingProposition(Proposition):
+    pass
 
-class TrueProposition(Proposition):
+class TrueProposition(NonCachingProposition):
     _immutable_ = True
 
     def evaluate(self, state, s, f):
@@ -82,7 +84,7 @@ class TrueProposition(Proposition):
         return "true"
 
 
-class FalseProposition(Proposition):
+class FalseProposition(NonCachingProposition):
     _immutable_ = True
 
     def evaluate(self, state, s, f):

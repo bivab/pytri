@@ -22,6 +22,11 @@ class PropContinuation(Continuation):
         self.mark = mark
 
     def activate(self, state):
+        import propositions
+        # grumble grumble special cases
+        if isinstance(self.prop, propositions.NonCachingProposition):
+            return self.prop.evaluate(state, self.succ, self.fail)
+
         label = self.prop.label()
         if label in state.labels:
             if state.labels[label]:
