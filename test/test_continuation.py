@@ -1,13 +1,16 @@
 import py
-from propositions import FalseProposition, AndProposition, EqualsProposition
-from propositions import LessProposition, NegationProposition, TrueProposition
-from propositions import OrProposition, EUProposition, EGProposition, EXProposition
+from propositions import FalseProposition, AndProposition, \
+                         EqualsProposition, LessProposition, \
+                         NegationProposition, TrueProposition, \
+                         OrProposition, EUProposition, \
+                         EGProposition, EXProposition
 from state import State
 from petri_net import PetriNet
 from transition import Transition
 from expression import VariableExpression, NumericExpression
 from continuation import PropContinuation, EndContinuation
 from parse import parse_net, parse_props
+
 state = State([2,0,0,1,0])
 
 def test_prop_continuation_true_prop():
@@ -84,27 +87,26 @@ def test_eg_proposition():
     assert run(p, s1) == True
 
 def test_eu_proposition_1():
-    t = Transition([0], [1])
-    p = PetriNet([t])
-    s1 = State([5,0], p)
+    net, state = parse_net("""
+    P:2
+    T:0->1
+    S:5|0 """)
     prop = EUProposition(LessProposition(NumericExpression(0),
     VariableExpression(0)), EqualsProposition(VariableExpression(1), NumericExpression(3)))
-    p = PropContinuation(prop, EndContinuation(True), EndContinuation(False))
-    assert run(p, s1) == True
+    assert state.evaluate(prop) == True
 
 def test_mark_continuation_true():
     p = TrueProposition()
-    prop = PropContinuation(p, EndContinuation(True), EndContinuation(False))
     s1 = State([1])
-    assert run(prop, s1) == True
-    assert s1.labels[p.label()] == True
+    assert s1.evaluate(p) == True
+    assert p.label() not in s1.labels
 
 def test_mark_continuation_false():
     p = FalseProposition()
-    prop = PropContinuation(p, EndContinuation(True), EndContinuation(False))
     s1 = State([1])
-    assert run(prop, s1) == False
-    assert s1.labels[p.label()] == False
+    assert s1.evaluate(p) == False
+    assert p.label() not in s1.labels
+
 def test_eg_continuation1():
     net, state = parse_net("""
 P:7
@@ -118,10 +120,8 @@ S:1|0|0|0|0|0|0
 """)
     prop = parse_props('EG true')[0]
     prop1 = parse_props('EG false')[0]
-    cont = PropContinuation(prop, EndContinuation(True), EndContinuation(False))
-    cont1 = PropContinuation(prop1, EndContinuation(True), EndContinuation(False))
-    assert run(cont, state) == True
-    assert run(cont1, state) == False
+    assert state.evaluate(prop) == True
+    assert state.evaluate(prop1) == False
 
 def test_eg_continuation2():
     net, state = parse_net("""
@@ -132,8 +132,7 @@ T:1->3
 T:2->4
 S:1|0|0|0|0""")
     prop = parse_props('EG $4=0')[0]
-    cont = PropContinuation(prop, EndContinuation(True), EndContinuation(False))
-    assert run(cont, state) == False
+    assert state.evaluate(prop) == False
 
 def test_ex_continuation():
     net, state = parse_net("""
@@ -147,8 +146,7 @@ T:0->6
 S:1|0|0|0|0|0|0
 """)
     prop = parse_props('EX $5 = 1')[0]
-    cont = PropContinuation(prop, EndContinuation(True), EndContinuation(False))
-    assert run(cont, state) == True
+    assert state.evaluate(prop) == True
 
 
 def test_eu_continuation():
@@ -164,8 +162,7 @@ S:1|0|0|0|0|0|0
 """)
     prop = parse_props('E true U $6 = 1')[0]
     prop1 = parse_props('E true U $6 = 1')[0]
-    cont = PropContinuation(prop, EndContinuation(True), EndContinuation(False))
-    assert run(cont, state) == True
+    assert state.evaluate(prop) == True
 
 def run(cont, state):
     while not cont.is_done():
