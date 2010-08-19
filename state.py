@@ -1,7 +1,20 @@
 from continuation import PropContinuation, EndContinuation, Continuation
 from pypy.rlib import jit
 from pypy.rlib.objectmodel import specialize
-jitdriver = jit.JitDriver(reds=["cont", "f", "state"], greens=["prop"])
+from pypy.rlib import rarithmetic
+
+def get_printable_location(prop):
+    if prop:
+        l = str(prop) + str(prop.label())
+    else:
+        l = 'No Prop'
+    return l
+
+jitdriver = jit.JitDriver(
+                reds=["cont", "f", "state"],
+                greens=["prop"],
+                get_printable_location=get_printable_location,
+            )
 
 def state_eq(self, other):
         assert isinstance(other, type(self))
