@@ -24,19 +24,17 @@ def state_eq(self, other):
         return True
 
 def state_hash(state):
-    result = 0
-    for i in range(len(state.tokens)):
-        result += (i+1) * (31*(i*2)) * state.tokens[i]
-    return result
+    return state.hash()
 
 class State(object):
     _immutable_ = True
-    __slots__ = ('tokens', 'net','labels')
+    __slots__ = ('tokens', 'net','labels', '_hash')
     def __init__(self, tokens=None, net=None):
         if tokens is None:
             tokens = []
         self.tokens = tokens
         self.net = net
+        self._hash = 0
         self.labels = {}
 
     def successors(self):
@@ -57,9 +55,20 @@ class State(object):
         assert isinstance(cont, EndContinuation)
         return cont.result
 
+    @jit.purefunction
+    def hash(self):
+        if self._hash:
+            return self._hash
+        x = 0x345678
+        for i in range(len(self.tokens)):
+            y = self.tokens[i]
+            x = rarithmetic.intmask((1000003 * x) ^ y)
+        self._hash = x
+        return x
+
     equals = state_eq
     __eq__ = equals
-    __hash__ = state_hash
+    __hash__ = hash
 
     def __ne__(self, other):
         return not self == other
