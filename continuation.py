@@ -34,52 +34,38 @@ class PropContinuation(Continuation):
         return self.prop.evaluate(state, m1, m2)
 
 class EUContinuation(PropContinuation):
-    __slots__ = ('activated', 'states', 'i')
+    __slots__ = ('states', 'i')
 
     def __init__(self, prop, s, f):
         PropContinuation.__init__(self, prop, s, f)
-        self.activated = False
         self.i = -1
         self.states = None
 
     def activate(self, state):
-        if not self.activated:
-            self.activated = True
-            p = self.prop
-            import propositions
-            assert isinstance(p, propositions.EUProposition)
-            return PropContinuation(p.second, self.succ, PropContinuation(p.first, self, self.fail)), self.fail, state
-        else:
-            if self.states is None:
-                self.states = state.successors()
-            self.i += 1
-            if self.i >= len(self.states):
-                return self.fail, self.succ, state
-            return PropContinuation(self.prop, self.succ, self), self.fail, self.states[self.i]
+        if self.states is None:
+            self.states = state.successors()
+            self.i = -1
+        self.i += 1
+        if self.i >= len(self.states):
+            return self.fail, self.succ, state
+        return PropContinuation(self.prop, self.succ, self), self.fail, self.states[self.i]
 
 class EGContinuation(PropContinuation):
     _immutable_fields_ = ["states"]
-    __slots__ = ('states', 'i', 'activated')
+    __slots__ = ('states', 'i')
     def __init__(self, prop, s, f):
         PropContinuation.__init__(self, prop, s, f)
-        self.activated = False
         self.i = -1
         self.states = None
 
     def activate(self, state):
-        if self.activated:
-            if self.states is None:
-                self.states = state.successors()
-            self.i += 1
-            if self.i >= len(self.states):
-                return self.succ, self.fail, state
-            return PropContinuation(self.prop, self, self.fail, True), self.fail, self.states[self.i]
-        else:
-            self.activated = True
-            import propositions
-            p = self.prop
-            assert isinstance(p, propositions.EGProposition)
-            return PropContinuation(p.proposition, self, self.fail, False), self.fail, state
+        if self.states is None:
+            self.states = state.successors()
+            self.i = -1
+        self.i += 1
+        if self.i >= len(self.states):
+            return self.succ, self.fail, state
+        return PropContinuation(self.prop, self, self.fail, True), self.fail, self.states[self.i]
 
 class EXContinuation(PropContinuation):
     _immutable_fields_ = ["states"]

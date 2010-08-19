@@ -151,7 +151,9 @@ class EUProposition(Proposition):
 
 
     def evaluate(self, state, s, f):
-        return EUContinuation(self, s, f), f, state
+        ff = EUContinuation(self, s, f)
+        fail = PropContinuation(self.first, ff, f)
+        return PropContinuation(self.second, s, fail), f, state
 
 class EGProposition(Proposition):
     __slots__ = 'proposition'
@@ -170,7 +172,8 @@ class EGProposition(Proposition):
 
 
     def evaluate(self, state, s, f):
-        return EGContinuation(self, s, f), f, state
+        p = EGContinuation(self, s, f)
+        return PropContinuation(self.proposition, p, f, False), f, state
 
 class EXProposition(Proposition):
     __slots__ = 'proposition'
