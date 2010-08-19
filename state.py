@@ -49,7 +49,8 @@ class State(object):
         state = self
         while not cont.is_done():
             prop = cont.prop
-            jitdriver.can_enter_jit(cont=cont, f=f, state=state, prop=prop)
+            if cont.__class__ is not PropContinuation:
+                jitdriver.can_enter_jit(cont=cont, f=f, state=state, prop=prop)
             jitdriver.jit_merge_point(cont=cont, f=f, state=state, prop=prop)
             cont, f, state = cont.activate(state)
         assert isinstance(cont, EndContinuation)
